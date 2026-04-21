@@ -203,6 +203,46 @@
 
     .btn-logout:hover { background: var(--red-dim); border-color: var(--red); color: #ff9999; }
 
+    /* === NAVBAR TABS === */
+    .tab-nav {
+      background: rgba(4,16,32,0.8);
+      border-bottom: 1px solid rgba(0,229,255,0.1);
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0;
+      backdrop-filter: blur(12px);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--white-50);
+      padding: 0.9rem 1.4rem;
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: color 0.2s, border-color 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover { color: var(--white-80); }
+
+    .tab-btn.active {
+      color: var(--cyan);
+      border-bottom-color: var(--cyan);
+      text-shadow: 0 0 12px rgba(0,229,255,0.5);
+    }
+
+    .tab-btn .tab-icon { font-size: 1rem; }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
     .dash-content { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
 
     /* === STATS === */
@@ -530,6 +570,19 @@
       <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
     </div>
 
+    <!-- NAV TABS -->
+    <nav class="tab-nav">
+      <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+        <span class="tab-icon">📊</span> Tableau de bord
+      </button>
+      <button class="tab-btn" data-tab="guests" onclick="switchTab('guests')">
+        <span class="tab-icon">👥</span> Inscrits
+        <span id="tab-badge" style="background:rgba(0,229,255,0.15);border:1px solid rgba(0,229,255,0.35);color:var(--cyan);border-radius:50px;padding:0.1rem 0.55rem;font-size:0.7rem;font-family:var(--font-body);font-weight:800;"></span>
+      </button>
+    </nav>
+
+    <!-- TAB: TABLEAU DE BORD -->
+    <div class="tab-content active" id="tab-dashboard">
     <div class="dash-content">
 
       <!-- STATS -->
@@ -559,6 +612,13 @@
         <button class="btn btn-cyan" onclick="saveCapacity()">Sauvegarder</button>
         <span id="cap-msg" style="font-size:0.8rem;color:var(--green);display:none;"></span>
       </div>
+
+    </div><!-- /dash-content dashboard -->
+    </div><!-- /tab-dashboard -->
+
+    <!-- TAB: INSCRITS -->
+    <div class="tab-content" id="tab-guests">
+    <div class="dash-content">
 
       <!-- TOOLBAR -->
       <div class="toolbar">
@@ -606,8 +666,10 @@
         </table>
       </div>
 
-    </div>
-  </div>
+    </div><!-- /dash-content guests -->
+    </div><!-- /tab-guests -->
+
+  </div><!-- /admin-dashboard -->
 
   <!-- MODAL — Ajouter -->
   <div id="add-modal" class="modal-overlay">
@@ -645,6 +707,19 @@
     // ============================================================
     if (sessionStorage.getItem('limbe-admin-auth') === 'true') showDashboard();
 
+    // ============================================================
+    // TABS
+    // ============================================================
+    function switchTab(name) {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === name);
+      });
+      document.querySelectorAll('.tab-content').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'tab-' + name);
+      });
+      if (name === 'guests') loadGuestList();
+    }
+
     function doLogin() {
       const user  = document.getElementById('username').value.trim();
       const pass  = document.getElementById('password').value;
@@ -666,10 +741,14 @@
     }
 
     function showDashboard() {
-      document.getElementById('login-screen').style.display  = 'none';
+      document.getElementById('login-screen').style.display    = 'none';
       document.getElementById('admin-dashboard').style.display = 'block';
       loadCapacity();
-      loadGuestList();
+      // Load guests silently to populate badge and stats on dashboard tab
+      fetch(`${API_URL}?action=list`)
+        .then(r => r.json())
+        .then(d => { if (d.status === 'success') { allGuests = d.data || []; updateStats(allGuests); } })
+        .catch(() => {});
     }
 
     // ============================================================
@@ -775,6 +854,7 @@
       document.getElementById('stat-total').textContent     = total;
       document.getElementById('stat-validated').textContent = validated;
       document.getElementById('stat-pending').textContent   = total - validated;
+      document.getElementById('tab-badge').textContent      = total > 0 ? total : '';
     }
 
     function filterGuests() {
