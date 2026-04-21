@@ -654,11 +654,83 @@
       backdrop-filter: blur(12px);
     }
 
+    /* ============================================================
+       RIGHT-SIDE NAV
+    ============================================================ */
+    .side-nav {
+      position: fixed;
+      right: 1.4rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .side-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    /* Label — hidden by default, slides in on hover */
+    .side-nav-label {
+      font-family: var(--font-t);
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      color: var(--w50);
+      opacity: 0;
+      transform: translateX(8px);
+      transition: opacity 0.25s, transform 0.25s, color 0.25s;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .side-nav-item:hover .side-nav-label,
+    .side-nav-item.active .side-nav-label {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    .side-nav-item.active .side-nav-label { color: var(--cyan); }
+
+    /* Dot */
+    .side-nav-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.35);
+      background: transparent;
+      transition: border-color 0.25s, background 0.25s, transform 0.25s,
+                  box-shadow 0.25s;
+      flex-shrink: 0;
+    }
+
+    .side-nav-item:hover .side-nav-dot {
+      border-color: var(--w50);
+      transform: scale(1.2);
+    }
+
+    .side-nav-item.active .side-nav-dot {
+      background: var(--cyan);
+      border-color: var(--cyan);
+      box-shadow: 0 0 8px rgba(0,229,255,0.7);
+      transform: scale(1.3);
+    }
+
+    /* Hide on very small screens */
     @media (max-width: 480px) {
       .field-row { grid-template-columns: 1fr; }
       .form-card  { padding: 1.5rem; }
       .cd-unit    { padding: 0.7rem 0.9rem; min-width: 62px; }
       .cd-num     { font-size: 2.2rem; }
+      .side-nav   { display: none; }
     }
   </style>
 </head>
@@ -668,10 +740,30 @@
   <div class="bg-fixed"></div>
   <div class="bg-tint"></div>
 
+  <!-- RIGHT-SIDE NAV -->
+  <nav class="side-nav" id="side-nav">
+    <button class="side-nav-item active" data-target="section-hero" onclick="scrollTo_('section-hero')">
+      <span class="side-nav-label">Accueil</span>
+      <span class="side-nav-dot"></span>
+    </button>
+    <button class="side-nav-item" data-target="section-info" onclick="scrollTo_('section-info')">
+      <span class="side-nav-label">Infos</span>
+      <span class="side-nav-dot"></span>
+    </button>
+    <button class="side-nav-item" data-target="section-activities" onclick="scrollTo_('section-activities')">
+      <span class="side-nav-label">Programme</span>
+      <span class="side-nav-dot"></span>
+    </button>
+    <button class="side-nav-item" data-target="section-form" onclick="scrollTo_('section-form')">
+      <span class="side-nav-label">S'inscrire</span>
+      <span class="side-nav-dot"></span>
+    </button>
+  </nav>
+
   <!-- ============================================================
        HERO
   ============================================================ -->
-  <section class="hero">
+  <section class="hero" id="section-hero">
 
     <div class="org-badge">MEEC Centre</div>
 
@@ -704,7 +796,7 @@
   <!-- ============================================================
        INFO STRIP
   ============================================================ -->
-  <div class="info-strip stagger">
+  <div class="info-strip stagger" id="section-info">
     <div class="info-pill reveal"><span>📅</span> 7 – 11 Août 2026</div>
     <div class="info-pill reveal"><span>📍</span> Limbé, Cameroun</div>
     <div class="info-pill hl reveal"><span>💰</span> 15 000 FCFA</div>
@@ -713,7 +805,7 @@
   <!-- ============================================================
        ACTIVITIES
   ============================================================ -->
-  <div class="activities-wrap">
+  <div class="activities-wrap" id="section-activities">
     <p class="section-title reveal">AU PROGRAMME</p>
     <div class="activities-row stagger">
       <div class="act-card reveal"><span class="act-icon">🏖️</span><span class="act-name">Plage</span></div>
@@ -736,7 +828,7 @@
   <!-- ============================================================
        FORM
   ============================================================ -->
-  <div class="form-section">
+  <div class="form-section" id="section-form">
 
     <div class="form-header reveal">
       <h2>S'INSCRIRE</h2>
@@ -956,6 +1048,35 @@
     ['full-name','phone','church','email'].forEach(id => {
       document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') submitForm(); });
     });
+
+    // ============================================================
+    // SIDE NAV — scroll + active dot tracking
+    // ============================================================
+    const NAV_SECTIONS = ['section-hero','section-info','section-activities','section-form'];
+
+    function scrollTo_(id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateActiveNav() {
+      const mid = window.innerHeight / 2;
+      let active = NAV_SECTIONS[0];
+
+      NAV_SECTIONS.forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        if (rect.top <= mid) active = id;
+      });
+
+      document.querySelectorAll('.side-nav-item').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.target === active);
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveNav, { passive: true });
+    updateActiveNav();
   </script>
 
 </body>
