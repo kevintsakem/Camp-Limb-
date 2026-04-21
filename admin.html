@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — Camp Limbé 2026</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --deep:       #020b16;
+      --navy:       #041020;
+      --panel:      #071828;
+      --cyan:       #00e5ff;
+      --coral:      #ff5252;
+      --sunset:     #ff9f43;
+      --gold:       #ffd166;
+      --green:      #00e5a0;
+      --orange:     #ff9f43;
+      --red:        #ff5252;
+      --white:      #ffffff;
+      --white-05:   rgba(255,255,255,0.04);
+      --white-10:   rgba(255,255,255,0.07);
+      --white-20:   rgba(255,255,255,0.14);
+      --white-50:   rgba(255,255,255,0.45);
+      --white-80:   rgba(255,255,255,0.8);
+      --cyan-dim:   rgba(0,229,255,0.12);
+      --green-dim:  rgba(0,229,160,0.12);
+      --orange-dim: rgba(255,159,67,0.12);
+      --red-dim:    rgba(255,82,82,0.12);
+      --font-title: 'Bebas Neue', 'Arial Black', sans-serif;
+      --font-body:  'Nunito', 'Segoe UI', sans-serif;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--deep);
+      color: var(--white);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Background glow */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 30%, rgba(0,229,255,0.06) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 70%, rgba(255,82,82,0.05) 0%, transparent 50%),
+        linear-gradient(180deg, #020b16 0%, #041020 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    * { position: relative; z-index: 1; }
+
+    /* ============================================================
+       LOGIN
+    ============================================================ */
+    .login-screen {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+    }
+
+    .login-card {
+      width: 100%;
+      max-width: 400px;
+      background: rgba(7,24,40,0.9);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 24px;
+      padding: 3rem 2.5rem;
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 0 0 1px rgba(0,229,255,0.05),
+        0 8px 60px rgba(0,0,0,0.6),
+        0 0 80px rgba(0,229,255,0.05);
+    }
+
+    .login-logo { text-align: center; margin-bottom: 2.5rem; }
+
+    .login-logo h1 {
+      font-family: var(--font-title);
+      font-size: 2.5rem;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, var(--cyan), var(--coral));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .login-logo p {
+      font-size: 0.7rem;
+      color: var(--white-50);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 0.3rem;
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    .field label {
+      display: block;
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--white-50);
+      margin-bottom: 0.4rem;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input::placeholder { color: rgba(255,255,255,0.2); }
+    .field select option { background: var(--panel); }
+    .field input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(0,229,255,0.12); }
+    .field select:focus { border-color: var(--cyan); }
+
+    .btn-login {
+      width: 100%;
+      padding: 0.9rem;
+      margin-top: 0.5rem;
+      background: linear-gradient(135deg, var(--cyan), var(--coral));
+      color: var(--deep);
+      border: none;
+      border-radius: 12px;
+      font-family: var(--font-title);
+      font-size: 1.2rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 25px rgba(0,229,255,0.3);
+    }
+
+    .btn-login:hover { transform: translateY(-1px); box-shadow: 0 6px 35px rgba(0,229,255,0.4); }
+
+    .login-error { color: #ff9999; font-size: 0.85rem; text-align: center; margin-top: 0.75rem; }
+
+    /* ============================================================
+       DASHBOARD
+    ============================================================ */
+    #admin-dashboard { display: none; }
+
+    .topbar {
+      background: rgba(4,16,32,0.95);
+      border-bottom: 1px solid rgba(0,229,255,0.1);
+      padding: 0.9rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      backdrop-filter: blur(12px);
+    }
+
+    .topbar-title {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--cyan), var(--coral));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .topbar-title span {
+      font-family: var(--font-body);
+      font-size: 0.75rem;
+      color: var(--white-50);
+      margin-left: 0.5rem;
+      -webkit-text-fill-color: var(--white-50);
+    }
+
+    .btn-logout {
+      background: transparent;
+      border: 1px solid rgba(255,82,82,0.3);
+      color: rgba(255,82,82,0.7);
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.8rem;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .btn-logout:hover { background: var(--red-dim); border-color: var(--red); color: #ff9999; }
+
+    .dash-content { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+    /* === STATS === */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .stat-card {
+      background: var(--white-10);
+      border: 1px solid var(--white-20);
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+    }
+
+    .stat-card.green  { background: var(--green-dim);  border-color: rgba(0,229,160,0.3); }
+    .stat-card.orange { background: var(--orange-dim); border-color: rgba(255,159,67,0.3); }
+    .stat-card.cyan   { background: var(--cyan-dim);   border-color: rgba(0,229,255,0.3); }
+
+    .stat-num {
+      font-family: var(--font-title);
+      font-size: 2.4rem;
+      line-height: 1;
+      color: var(--white);
+    }
+
+    .stat-card.green  .stat-num { color: var(--green);  text-shadow: 0 0 15px rgba(0,229,160,0.5); }
+    .stat-card.orange .stat-num { color: var(--orange); text-shadow: 0 0 15px rgba(255,159,67,0.5); }
+    .stat-card.cyan   .stat-num { color: var(--cyan);   text-shadow: 0 0 15px rgba(0,229,255,0.5); }
+
+    .stat-lbl {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--white-50);
+      margin-top: 0.3rem;
+    }
+
+    /* === CAPACITY CONTROL === */
+    .cap-control {
+      background: var(--white-05);
+      border: 1px solid var(--white-10);
+      border-radius: 14px;
+      padding: 0.9rem 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.2rem;
+    }
+
+    .cap-control label { font-size: 0.8rem; color: var(--white-50); font-weight: 700; white-space: nowrap; }
+
+    .cap-control input[type="number"] {
+      width: 90px;
+      padding: 0.5rem 0.7rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--white-20);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      text-align: center;
+      outline: none;
+    }
+
+    .cap-control input:focus { border-color: var(--cyan); }
+
+    /* === TOOLBAR === */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      align-items: center;
+      margin-bottom: 0.9rem;
+    }
+
+    .search-wrap { flex: 1; min-width: 200px; }
+
+    .search-wrap input {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--white-20);
+      border-radius: 10px;
+      color: var(--white);
+      font-family: var(--font-body);
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-wrap input::placeholder { color: var(--white-50); }
+    .search-wrap input:focus { border-color: var(--cyan); }
+
+    .btn {
+      padding: 0.6rem 1.1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 700;
+      transition: transform 0.12s, background 0.2s;
+      white-space: nowrap;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--white-20);
+      color: var(--white-80);
+    }
+
+    .btn-outline:hover { background: var(--white-10); border-color: var(--cyan); color: var(--cyan); }
+
+    .btn-cyan {
+      background: linear-gradient(135deg, var(--cyan), #0099bb);
+      color: var(--deep);
+      border: none;
+      box-shadow: 0 3px 15px rgba(0,229,255,0.3);
+    }
+
+    .btn-cyan:hover { transform: translateY(-1px); box-shadow: 0 5px 20px rgba(0,229,255,0.4); }
+    .btn-cyan:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .btn-danger {
+      background: var(--red-dim);
+      border: 1px solid rgba(255,82,82,0.4);
+      color: #ff9999;
+    }
+
+    .btn-danger:hover { background: rgba(255,82,82,0.2); border-color: var(--red); }
+
+    /* === MASS DELETE BAR === */
+    .mass-bar {
+      display: none;
+      background: var(--red-dim);
+      border: 1px solid rgba(255,82,82,0.3);
+      border-radius: 12px;
+      padding: 0.7rem 1.2rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 0.9rem;
+      flex-wrap: wrap;
+    }
+
+    .mass-bar.visible { display: flex; }
+    .mass-bar span { font-size: 0.85rem; color: #ff9999; }
+
+    /* === TABLE === */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 16px;
+      border: 1px solid rgba(0,229,255,0.1);
+      box-shadow: 0 0 40px rgba(0,0,0,0.3);
+    }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+
+    thead { background: rgba(0,229,255,0.04); }
+
+    th {
+      padding: 0.85rem 0.75rem;
+      text-align: left;
+      font-size: 0.65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(0,229,255,0.6);
+      white-space: nowrap;
+      border-bottom: 1px solid rgba(0,229,255,0.1);
+    }
+
+    td {
+      padding: 0.75rem 0.75rem;
+      border-bottom: 1px solid var(--white-05);
+      color: var(--white-80);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(0,229,255,0.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .badge-ok      { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(0,229,160,0.4); }
+    .badge-pending { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(255,159,67,0.4); }
+
+    .btn-validate {
+      background: var(--green-dim);
+      border: 1px solid rgba(0,229,160,0.4);
+      color: var(--green);
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      font-family: var(--font-body);
+      font-weight: 800;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-validate:hover   { background: rgba(0,229,160,0.25); }
+    .btn-validate:disabled{ opacity: 0.4; cursor: default; }
+
+    .btn-del-row {
+      background: transparent;
+      border: 1px solid rgba(255,82,82,0.3);
+      color: rgba(255,82,82,0.7);
+      padding: 0.28rem 0.55rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      transition: background 0.2s;
+    }
+
+    .btn-del-row:hover { background: var(--red-dim); border-color: var(--red); color: #ff9999; }
+
+    .actions-cell { display: flex; gap: 0.35rem; align-items: center; }
+
+    .row-cb { width: 15px; height: 15px; accent-color: var(--cyan); cursor: pointer; }
+
+    .empty-row td { text-align: center; padding: 2.5rem; color: var(--white-50); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 2px solid var(--white-10);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 0.4rem;
+    }
+
+    /* === MODAL === */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.open { display: flex; }
+
+    .modal-box {
+      background: var(--panel);
+      border: 1px solid rgba(0,229,255,0.2);
+      border-radius: 20px;
+      padding: 2rem;
+      width: 90%;
+      max-width: 460px;
+      box-shadow: 0 0 80px rgba(0,229,255,0.08), 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    .modal-title {
+      font-family: var(--font-title);
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-body   { display: flex; flex-direction: column; gap: 0.75rem; }
+    .modal-footer { display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1rem; }
+    .modal-err    { color: #ff9999; font-size: 0.82rem; display: none; }
+
+    @media (max-width: 600px) {
+      .stats-grid     { grid-template-columns: 1fr 1fr; }
+      .topbar         { padding: 0.7rem 1rem; }
+      .dash-content   { padding: 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <h1>CAMP LIMBÉ 2026</h1>
+        <p>Panneau Administrateur</p>
+      </div>
+      <div class="field">
+        <label>Identifiant</label>
+        <input type="text" id="username" placeholder="admin" autocomplete="username">
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="password" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="btn-login" onclick="doLogin()">CONNEXION</button>
+      <p class="login-error" id="login-error"></p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="admin-dashboard">
+
+    <div class="topbar">
+      <div class="topbar-title">
+        CAMP LIMBÉ 2026
+        <span>Administrateur</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Déconnexion</button>
+    </div>
+
+    <div class="dash-content">
+
+      <!-- STATS -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-num" id="stat-total">—</div>
+          <div class="stat-lbl">Total inscrits</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-num" id="stat-validated">—</div>
+          <div class="stat-lbl">Paiements validés</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-num" id="stat-pending">—</div>
+          <div class="stat-lbl">En attente</div>
+        </div>
+        <div class="stat-card cyan">
+          <div class="stat-num" id="stat-remaining">—</div>
+          <div class="stat-lbl">Places restantes</div>
+        </div>
+      </div>
+
+      <!-- CAPACITY CONTROL -->
+      <div class="cap-control">
+        <label>Capacité maximale :</label>
+        <input type="number" id="cap-input" min="1" value="200">
+        <button class="btn btn-cyan" onclick="saveCapacity()">Sauvegarder</button>
+        <span id="cap-msg" style="font-size:0.8rem;color:var(--green);display:none;"></span>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="search-wrap">
+          <input type="text" id="search-input" placeholder="Rechercher par nom, téléphone, ticket..." oninput="filterGuests()">
+        </div>
+        <button class="btn btn-outline" onclick="loadGuestList()"><span id="refresh-icon">↻</span> Rafraîchir</button>
+        <button class="btn btn-cyan" onclick="openAddModal()">+ Ajouter</button>
+        <a class="btn btn-outline" href="/api?action=export" download>⬇ Exporter</a>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <input type="number" id="gen-count" min="1" max="200" value="10"
+            style="width:65px;padding:0.5rem 0.6rem;background:rgba(255,255,255,0.04);border:1px solid var(--white-20);border-radius:8px;color:var(--white);font-size:0.82rem;text-align:center;outline:none;">
+          <button class="btn btn-outline" id="gen-btn" onclick="generateRandomUsers()">⚡ Générer</button>
+        </div>
+      </div>
+
+      <!-- MASS DELETE BAR -->
+      <div class="mass-bar" id="mass-bar">
+        <span id="mass-count">0 sélectionnés</span>
+        <button class="btn btn-danger" onclick="massDelete()">🗑 Supprimer la sélection</button>
+      </div>
+
+      <!-- TABLE -->
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th><input type="checkbox" class="row-cb" id="select-all" onchange="toggleSelectAll(this)"></th>
+              <th>#</th>
+              <th>Nom</th>
+              <th>Sexe</th>
+              <th>Téléphone</th>
+              <th>Église / Groupe</th>
+              <th>Email</th>
+              <th>Ticket ID</th>
+              <th>Statut Paiement</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="guest-body">
+            <tr class="empty-row">
+              <td colspan="10"><span class="spinner"></span> Chargement...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL — Ajouter -->
+  <div id="add-modal" class="modal-overlay">
+    <div class="modal-box">
+      <h3 class="modal-title">AJOUTER</h3>
+      <div class="modal-body">
+        <div class="field"><label>Nom complet *</label><input type="text" id="add-name" placeholder="Nom complet"></div>
+        <div class="field">
+          <label>Sexe *</label>
+          <select id="add-gender">
+            <option value="">Choisir</option>
+            <option value="Homme">Homme</option>
+            <option value="Femme">Femme</option>
+          </select>
+        </div>
+        <div class="field"><label>Téléphone *</label><input type="tel" id="add-phone" placeholder="699 00 00 00"></div>
+        <div class="field"><label>Église / Groupe *</label><input type="text" id="add-church" placeholder="MEEC Centre"></div>
+        <div class="field"><label>Email</label><input type="email" id="add-email" placeholder="(optionnel)"></div>
+        <p id="add-err" class="modal-err"></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeAddModal()">Annuler</button>
+        <button class="btn btn-cyan" onclick="submitManualAdd()">Ajouter</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '/api';
+    const ADMIN_USERNAME = 'admin';
+    const ADMIN_PASSWORD = 'limbe2026';
+
+    // ============================================================
+    // LOGIN
+    // ============================================================
+    if (sessionStorage.getItem('limbe-admin-auth') === 'true') showDashboard();
+
+    function doLogin() {
+      const user  = document.getElementById('username').value.trim();
+      const pass  = document.getElementById('password').value;
+      const errEl = document.getElementById('login-error');
+      if (user === ADMIN_USERNAME && pass === ADMIN_PASSWORD) {
+        sessionStorage.setItem('limbe-admin-auth', 'true');
+        showDashboard();
+      } else {
+        errEl.textContent = 'Identifiants incorrects.';
+        document.getElementById('password').value = '';
+      }
+    }
+
+    document.getElementById('password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+    function doLogout() {
+      sessionStorage.removeItem('limbe-admin-auth');
+      location.reload();
+    }
+
+    function showDashboard() {
+      document.getElementById('login-screen').style.display  = 'none';
+      document.getElementById('admin-dashboard').style.display = 'block';
+      loadCapacity();
+      loadGuestList();
+    }
+
+    // ============================================================
+    // CAPACITY
+    // ============================================================
+    async function loadCapacity() {
+      try {
+        const r = await fetch(`${API_URL}?action=getcapacity`);
+        const d = await r.json();
+        if (d.status === 'success') {
+          document.getElementById('cap-input').value = d.max_places;
+          document.getElementById('stat-remaining').textContent = Math.max(0, d.max_places - d.current);
+        }
+      } catch (e) {}
+    }
+
+    async function saveCapacity() {
+      const val   = document.getElementById('cap-input').value;
+      const msgEl = document.getElementById('cap-msg');
+      try {
+        const r = await fetch(`${API_URL}?action=setcapacity&value=${encodeURIComponent(val)}`);
+        const d = await r.json();
+        if (d.status === 'success') {
+          msgEl.textContent   = '✓ Sauvegardé';
+          msgEl.style.display = 'inline';
+          setTimeout(() => { msgEl.style.display = 'none'; }, 3000);
+          loadCapacity();
+        } else {
+          alert('Erreur : ' + d.message);
+        }
+      } catch (e) { alert('Erreur de connexion.'); }
+    }
+
+    // ============================================================
+    // GUEST LIST
+    // ============================================================
+    let allGuests = [];
+
+    async function loadGuestList() {
+      const tbody = document.getElementById('guest-body');
+      const icon  = document.getElementById('refresh-icon');
+      tbody.innerHTML = '<tr class="empty-row"><td colspan="10"><span class="spinner"></span> Chargement...</td></tr>';
+      icon.textContent = '⏳';
+
+      try {
+        const r = await fetch(`${API_URL}?action=list`);
+        const d = await r.json();
+        if (d.status === 'success') {
+          allGuests = d.data || [];
+          renderGuestList(allGuests);
+          updateStats(allGuests);
+        } else {
+          tbody.innerHTML = `<tr class="empty-row"><td colspan="10" style="color:#ff9999;">Erreur : ${d.message}</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="10" style="color:#ff9999;">Erreur de connexion.</td></tr>';
+      }
+      icon.textContent = '↻';
+    }
+
+    function renderGuestList(guests) {
+      const tbody = document.getElementById('guest-body');
+      document.getElementById('select-all').checked = false;
+      updateMassBar();
+
+      if (guests.length === 0) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="10">Aucune inscription trouvée.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = guests.map((g, i) => {
+        const ok    = g.payment_status === 'Validé';
+        const badge = ok
+          ? '<span class="badge badge-ok">✓ Validé</span>'
+          : '<span class="badge badge-pending">En attente</span>';
+        const vBtn  = ok
+          ? `<button class="btn-validate" disabled>✓ Validé</button>`
+          : `<button class="btn-validate" onclick="validateGuest('${g.ticket_id}')">✓ Valider</button>`;
+        return `
+          <tr id="row-${g.ticket_id}">
+            <td><input type="checkbox" class="row-cb" data-id="${g.ticket_id}" onchange="onCbChange()"></td>
+            <td style="color:var(--white-50);">${i+1}</td>
+            <td style="color:var(--white);font-weight:800;">${g.full_name||'—'}</td>
+            <td>${g.gender||'—'}</td>
+            <td>${g.phone||'—'}</td>
+            <td>${g.church||'—'}</td>
+            <td style="font-size:0.78rem;">${g.email&&g.email!=='N/A'?g.email:'—'}</td>
+            <td style="font-family:monospace;font-size:0.78rem;color:rgba(0,229,255,0.7);">${g.ticket_id||'—'}</td>
+            <td>${badge}</td>
+            <td>
+              <div class="actions-cell">
+                ${vBtn}
+                <button class="btn-del-row" onclick="deleteGuest('${g.ticket_id}')">🗑</button>
+              </div>
+            </td>
+          </tr>`;
+      }).join('');
+    }
+
+    function updateStats(guests) {
+      const total     = guests.length;
+      const validated = guests.filter(g => g.payment_status === 'Validé').length;
+      document.getElementById('stat-total').textContent     = total;
+      document.getElementById('stat-validated').textContent = validated;
+      document.getElementById('stat-pending').textContent   = total - validated;
+    }
+
+    function filterGuests() {
+      const q = document.getElementById('search-input').value.toLowerCase();
+      renderGuestList(allGuests.filter(g =>
+        (g.full_name||'').toLowerCase().includes(q) ||
+        (g.phone||'').toLowerCase().includes(q) ||
+        (g.ticket_id||'').toLowerCase().includes(q) ||
+        (g.church||'').toLowerCase().includes(q)
+      ));
+    }
+
+    // ============================================================
+    // VALIDATE
+    // ============================================================
+    async function validateGuest(ticketId) {
+      try {
+        const r = await fetch(`${API_URL}?action=validate&ticket_id=${encodeURIComponent(ticketId)}`);
+        const d = await r.json();
+        if (d.status === 'success') {
+          await loadGuestList();
+        } else if (d.status === 'already_validated') {
+          alert('Paiement déjà validé.');
+        } else {
+          alert('Erreur : ' + d.message);
+        }
+      } catch (err) { alert('Erreur de connexion.'); }
+    }
+
+    // ============================================================
+    // DELETE
+    // ============================================================
+    async function deleteGuest(ticketId) {
+      if (!confirm(`Supprimer l'inscription ${ticketId} ?`)) return;
+      try {
+        const r = await fetch(`${API_URL}?action=delete&ticket_id=${encodeURIComponent(ticketId)}`);
+        const d = await r.json();
+        if (d.status === 'success') { await loadGuestList(); }
+        else { alert('Erreur : ' + d.message); }
+      } catch (err) { alert('Erreur de connexion.'); }
+    }
+
+    // ============================================================
+    // MASS DELETE
+    // ============================================================
+    function getChecked() {
+      return [...document.querySelectorAll('.row-cb[data-id]:checked')].map(cb => cb.dataset.id);
+    }
+
+    function onCbChange() { updateMassBar(); }
+
+    function toggleSelectAll(el) {
+      document.querySelectorAll('.row-cb[data-id]').forEach(cb => cb.checked = el.checked);
+      updateMassBar();
+    }
+
+    function updateMassBar() {
+      const ids = getChecked();
+      const bar = document.getElementById('mass-bar');
+      ids.length > 0
+        ? (bar.classList.add('visible'), document.getElementById('mass-count').textContent = `${ids.length} sélectionné${ids.length>1?'s':''}`)
+        : bar.classList.remove('visible');
+    }
+
+    async function massDelete() {
+      const ids = getChecked();
+      if (!ids.length || !confirm(`Supprimer ${ids.length} inscription${ids.length>1?'s':''} ?`)) return;
+      try {
+        const r = await fetch(`${API_URL}?action=deletemany&ticket_ids=${encodeURIComponent(ids.join(','))}`);
+        const d = await r.json();
+        if (d.status === 'success') { await loadGuestList(); }
+        else { alert('Erreur : ' + d.message); }
+      } catch (err) { alert('Erreur de connexion.'); }
+    }
+
+    // ============================================================
+    // AJOUTER MANUELLEMENT
+    // ============================================================
+    function genTicket() {
+      const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let id = 'LMB-';
+      for (let i = 0; i < 6; i++) id += c[Math.floor(Math.random() * c.length)];
+      return id;
+    }
+
+    function openAddModal()  { document.getElementById('add-modal').classList.add('open'); document.getElementById('add-name').focus(); }
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('open');
+      ['add-name','add-phone','add-church','add-email'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('add-gender').value = '';
+      document.getElementById('add-err').style.display = 'none';
+    }
+
+    async function submitManualAdd() {
+      const name   = document.getElementById('add-name').value.trim();
+      const gender = document.getElementById('add-gender').value;
+      const phone  = document.getElementById('add-phone').value.trim();
+      const church = document.getElementById('add-church').value.trim();
+      const email  = document.getElementById('add-email').value.trim() || 'N/A';
+      const errEl  = document.getElementById('add-err');
+
+      if (!name || !gender || !phone || !church) {
+        errEl.textContent   = 'Veuillez remplir tous les champs obligatoires.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const ticketId  = genTicket();
+      const timestamp = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Douala' });
+      try {
+        const params = new URLSearchParams({ action:'register', full_name:name, gender, phone, church, email, ticket_id:ticketId, timestamp });
+        const r = await fetch(`${API_URL}?${params}`);
+        const d = await r.json();
+        if (d.status === 'success') { closeAddModal(); await loadGuestList(); }
+        else { errEl.textContent = 'Erreur : ' + d.message; errEl.style.display = 'block'; }
+      } catch (err) { errEl.textContent = 'Erreur de connexion.'; errEl.style.display = 'block'; }
+    }
+
+    // ============================================================
+    // GÉNÉRER ALÉATOIRES
+    // ============================================================
+    async function generateRandomUsers() {
+      const count = parseInt(document.getElementById('gen-count').value) || 10;
+      if (count < 1 || count > 200) { alert('Entrez un nombre entre 1 et 200.'); return; }
+
+      const btn = document.getElementById('gen-btn');
+      btn.disabled = true;
+      btn.textContent = `⏳ 0 / ${count}`;
+
+      const firstNames = ['Aurelie','Kevin','Marie','Jean','Christiane','Fandom','Divine','Grace',
+        'Patrick','Sandra','Lionel','Carine','Rodrigue','Vanessa','Michel','Laure',
+        'Boris','Flore','Armand','Nadège','Serge','Joëlle','Brice','Estelle'];
+      const lastNames = ['Mbarga','Tsakem','Kamga','Fouda','Nguema','Biya','Mvondo','Essomba',
+        'Nkoa','Atangana','Ondoa','Beyala','Mbassi','Ndjomo','Tchuente','Lobe'];
+      const churches = ['MEEC Centre','MEEC Bastos','MEEC Melen','MEEC Omnisport',
+        'EC Mvolyé','EC Nkol-Eton','EC Biyem-Assi','EPCSA Yaoundé'];
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+      let ok = 0, fail = 0;
+      for (let i = 0; i < count; i++) {
+        const fn = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const ln = lastNames[Math.floor(Math.random() * lastNames.length)];
+        const gender = Math.random() > 0.5 ? 'Homme' : 'Femme';
+        const phone  = '6' + String(Math.floor(10000000 + Math.random() * 89999999));
+        const church = churches[Math.floor(Math.random() * churches.length)];
+        let tid = 'LMB-';
+        for (let j = 0; j < 6; j++) tid += chars[Math.floor(Math.random() * chars.length)];
+        const ts = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Douala' });
+        const params = new URLSearchParams({ action:'register', full_name:`${fn} ${ln}`, gender, phone, church, email:'N/A', ticket_id:tid, timestamp:ts });
+        try {
+          const r = await fetch(`${API_URL}?${params}`);
+          const d = await r.json();
+          if (d.status === 'success') ok++; else fail++;
+        } catch (_) { fail++; }
+        btn.textContent = `⏳ ${ok + fail} / ${count}`;
+      }
+
+      btn.disabled    = false;
+      btn.textContent = '⚡ Générer';
+      alert(`✅ ${ok} inscrits générés${fail ? ` — ${fail} échec(s)` : ''}.`);
+      loadGuestList();
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camp Limbé 2026 — MEEC Centre</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --deep:   #020b16;
+      --navy:   #041020;
+      --panel:  #071828;
+      --cyan:   #00e5ff;
+      --coral:  #ff5252;
+      --gold:   #ffd166;
+      --white:  #ffffff;
+      --w10:    rgba(255,255,255,0.07);
+      --w20:    rgba(255,255,255,0.14);
+      --w50:    rgba(255,255,255,0.45);
+      --font-t: 'Bebas Neue', 'Arial Black', sans-serif;
+      --font-b: 'Nunito', 'Segoe UI', sans-serif;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-b);
+      color: var(--white);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ============================================================
+       FIXED PHOTO BACKGROUND  (works on iOS too)
+    ============================================================ */
+    .bg-fixed {
+      position: fixed;
+      inset: 0;
+      background-image: url('beach-bg.jpg');
+      background-size: cover;
+      background-position: center 35%;
+      z-index: -2;
+    }
+
+    /* Dark tint so text is always readable */
+    .bg-tint {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 11, 22, 0.45);
+      z-index: -1;
+    }
+
+    /* ============================================================
+       SCROLL REVEAL  — elements start hidden, appear on scroll
+    ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(50px);
+      transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1),
+                  transform 0.85s cubic-bezier(0.22,1,0.36,1);
+    }
+
+    .reveal.in {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Stagger delays for child groups */
+    .stagger .reveal:nth-child(1) { transition-delay: 0s;    }
+    .stagger .reveal:nth-child(2) { transition-delay: 0.12s; }
+    .stagger .reveal:nth-child(3) { transition-delay: 0.24s; }
+    .stagger .reveal:nth-child(4) { transition-delay: 0.36s; }
+    .stagger .reveal:nth-child(5) { transition-delay: 0.48s; }
+
+    /* ============================================================
+       HERO — full viewport, beach bg shows through overlay
+    ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 3rem 1.5rem 10rem;
+      overflow: hidden;
+    }
+
+    /* Hero gradient overlay: dark top + bottom, transparent in middle */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(2,11,22,0.65) 0%,
+        rgba(2,11,22,0.20) 30%,
+        rgba(2,11,22,0.10) 55%,
+        rgba(2,11,22,0.75) 85%,
+        rgba(2,11,22,1.00) 100%
+      );
+      z-index: 0;
+    }
+
+    .hero > * { position: relative; z-index: 1; }
+
+    /* Org badge — entrance from top on load */
+    .org-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(0,229,255,0.1);
+      border: 1px solid rgba(0,229,255,0.35);
+      border-radius: 50px;
+      padding: 0.5rem 1.4rem;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeDown 0.8s cubic-bezier(0.22,1,0.36,1) 0.2s forwards;
+    }
+
+    .org-badge::before {
+      content: '';
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      animation: dot-pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes dot-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,229,255,0.7); }
+      50%       { box-shadow: 0 0 0 6px rgba(0,229,255,0); }
+    }
+
+    /* Title — split entrance */
+    .hero-title {
+      line-height: 0.85;
+      margin-bottom: 1rem;
+    }
+
+    .title-camp {
+      display: block;
+      font-family: var(--font-t);
+      font-size: clamp(5rem, 18vw, 11rem);
+      color: var(--white);
+      letter-spacing: 8px;
+      text-shadow: 0 4px 30px rgba(0,0,0,0.6), 0 0 60px rgba(0,229,255,0.15);
+      opacity: 0;
+      animation: slideDown 0.9s cubic-bezier(0.22,1,0.36,1) 0.4s forwards;
+    }
+
+    .title-name {
+      display: block;
+      font-family: var(--font-t);
+      font-size: clamp(6rem, 24vw, 14rem);
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--coral) 50%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 30px rgba(0,229,255,0.4));
+      opacity: 0;
+      animation: slideUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.55s forwards,
+                 titleGlow 5s ease-in-out 1.5s infinite;
+    }
+
+    @keyframes titleGlow {
+      0%, 100% { filter: drop-shadow(0 0 20px rgba(0,229,255,0.4)); }
+      50%       { filter: drop-shadow(0 0 45px rgba(255,82,82,0.5)); }
+    }
+
+    .hero-edition {
+      font-family: var(--font-t);
+      font-size: clamp(1rem, 3.5vw, 1.8rem);
+      letter-spacing: 10px;
+      color: var(--w50);
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.75s forwards;
+    }
+
+    /* Countdown */
+    .countdown {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.9s forwards;
+    }
+
+    .cd-unit {
+      background: rgba(2,11,22,0.5);
+      border: 1px solid rgba(0,229,255,0.25);
+      border-radius: 16px;
+      padding: 1rem 1.4rem;
+      min-width: 80px;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .cd-num {
+      display: block;
+      font-family: var(--font-t);
+      font-size: 2.8rem;
+      line-height: 1;
+      color: var(--cyan);
+      text-shadow: 0 0 20px rgba(0,229,255,0.7);
+    }
+
+    .cd-lbl {
+      display: block;
+      font-size: 0.58rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--w50);
+      margin-top: 0.2rem;
+    }
+
+    /* Wave separator */
+    .hero-wave {
+      position: absolute;
+      bottom: -2px; left: 0; right: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .hero-wave svg { display: block; width: 100%; }
+
+    /* ============================================================
+       HERO KEYFRAMES (on-load)
+    ============================================================ */
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-50px); }
+      to   { opacity: 1; transform: translateY(0);     }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to   { opacity: 1; transform: translateY(0);     }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+
+    /* ============================================================
+       CONTENT SECTIONS — dark glass panels on the beach bg
+    ============================================================ */
+    .section {
+      padding: 3rem 1.5rem;
+    }
+
+    .section-inner {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Frosted glass panel */
+    .glass-panel {
+      background: rgba(2,11,22,0.72);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 24px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow:
+        0 8px 60px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.06),
+        0 0 0 1px rgba(0,229,255,0.04);
+    }
+
+    /* ============================================================
+       INFO STRIP
+    ============================================================ */
+    .info-strip {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 2rem 1.5rem 1rem;
+    }
+
+    .info-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      background: rgba(2,11,22,0.65);
+      border: 1px solid var(--w20);
+      border-radius: 50px;
+      padding: 0.7rem 1.5rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      backdrop-filter: blur(12px);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .info-pill:hover { background: rgba(2,11,22,0.85); }
+
+    .info-pill.hl {
+      background: rgba(0,229,255,0.1);
+      border-color: rgba(0,229,255,0.45);
+      color: var(--cyan);
+    }
+
+    /* ============================================================
+       ACTIVITIES
+    ============================================================ */
+    .activities-wrap {
+      padding: 1.5rem 1.5rem 2rem;
+      text-align: center;
+    }
+
+    .section-title {
+      font-family: var(--font-t);
+      font-size: 1.6rem;
+      letter-spacing: 5px;
+      color: var(--w50);
+      margin-bottom: 1.5rem;
+    }
+
+    .activities-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .act-card {
+      flex: 1;
+      min-width: 100px;
+      max-width: 150px;
+      background: rgba(2,11,22,0.6);
+      border: 1px solid var(--w20);
+      border-radius: 20px;
+      padding: 1.4rem 1rem;
+      text-align: center;
+      backdrop-filter: blur(12px);
+      transition: transform 0.25s cubic-bezier(0.22,1,0.36,1),
+                  border-color 0.25s, background 0.25s;
+      cursor: default;
+    }
+
+    .act-card:hover { transform: translateY(-8px); background: rgba(2,11,22,0.8); }
+
+    .act-card:nth-child(1):hover { border-color: rgba(0,229,255,0.6); }
+    .act-card:nth-child(2):hover { border-color: rgba(255,82,82,0.6); }
+    .act-card:nth-child(3):hover { border-color: rgba(184,255,87,0.6); }
+    .act-card:nth-child(4):hover { border-color: rgba(255,209,102,0.6); }
+
+    .act-icon { font-size: 2.4rem; margin-bottom: 0.5rem; display: block; }
+
+    .act-name {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--w50);
+    }
+
+    /* ============================================================
+       CAPACITY BAR
+    ============================================================ */
+    .cap-section {
+      padding: 0 1.5rem 2rem;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .cap-card {
+      background: rgba(2,11,22,0.65);
+      border: 1px solid var(--w20);
+      border-radius: 16px;
+      padding: 1.2rem 1.5rem;
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .cap-text {
+      font-size: 0.85rem;
+      color: var(--w50);
+      margin-bottom: 0.75rem;
+    }
+
+    .cap-bar {
+      background: rgba(255,255,255,0.08);
+      border-radius: 50px;
+      height: 6px;
+      overflow: hidden;
+    }
+
+    .cap-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--coral));
+      border-radius: 50px;
+      transition: width 1s cubic-bezier(0.22,1,0.36,1);
+      box-shadow: 0 0 12px rgba(0,229,255,0.5);
+      width: 0%;
+    }
+
+    /* ============================================================
+       FORM SECTION
+    ============================================================ */
+    .form-section {
+      padding: 0 1.5rem 5rem;
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-header h2 {
+      font-family: var(--font-t);
+      font-size: 2.4rem;
+      letter-spacing: 4px;
+      color: var(--white);
+      text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+    }
+
+    .form-header p {
+      font-size: 0.85rem;
+      color: var(--w50);
+      margin-top: 0.3rem;
+    }
+
+    /* Form card */
+    .form-card {
+      background: rgba(2,11,22,0.8);
+      border: 1px solid rgba(0,229,255,0.18);
+      border-radius: 24px;
+      padding: 2rem;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 0 0 1px rgba(0,229,255,0.04),
+        0 8px 60px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.05);
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    .field label {
+      display: block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--w50);
+      margin-bottom: 0.4rem;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.11);
+      border-radius: 12px;
+      color: var(--white);
+      font-family: var(--font-b);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .field input::placeholder { color: rgba(255,255,255,0.2); }
+    .field select option { background: var(--panel); color: var(--white); }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--cyan);
+      background: rgba(0,229,255,0.04);
+      box-shadow: 0 0 0 3px rgba(0,229,255,0.12), 0 0 20px rgba(0,229,255,0.07);
+    }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .btn-register {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 0.75rem;
+      background: linear-gradient(135deg, var(--cyan) 0%, var(--coral) 100%);
+      color: var(--deep);
+      border: none;
+      border-radius: 14px;
+      font-family: var(--font-t);
+      font-size: 1.3rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 30px rgba(0,229,255,0.35);
+    }
+
+    /* Shimmer sweep on hover */
+    .btn-register::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent 35%, rgba(255,255,255,0.25) 50%, transparent 65%);
+      transform: translateX(-100%);
+      transition: transform 0.45s ease;
+    }
+
+    .btn-register:hover:not(:disabled)::after { transform: translateX(100%); }
+    .btn-register:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 40px rgba(0,229,255,0.5);
+    }
+    .btn-register:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .form-err {
+      margin-top: 0.75rem;
+      padding: 0.7rem 1rem;
+      background: rgba(255,82,82,0.1);
+      border: 1px solid rgba(255,82,82,0.35);
+      border-radius: 10px;
+      color: #ff9999;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    /* ============================================================
+       SUCCESS / FULL CARDS
+    ============================================================ */
+    .success-card {
+      display: none;
+      background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.3);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(0,229,255,0.08);
+    }
+
+    .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+
+    .success-title {
+      font-family: var(--font-t);
+      font-size: 2.5rem;
+      letter-spacing: 3px;
+      color: var(--cyan);
+      margin-bottom: 0.3rem;
+      text-shadow: 0 0 20px rgba(0,229,255,0.5);
+    }
+
+    .success-name { font-size: 1rem; color: var(--w50); margin-bottom: 2rem; }
+
+    .ticket-box {
+      background: rgba(0,0,0,0.35);
+      border: 1px dashed rgba(0,229,255,0.4);
+      border-radius: 16px;
+      padding: 1.2rem 2rem;
+      margin-bottom: 1.5rem;
+      display: inline-block;
+    }
+
+    .ticket-label {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: var(--w50);
+      margin-bottom: 0.4rem;
+    }
+
+    .ticket-id {
+      font-family: 'Courier New', monospace;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--cyan);
+      letter-spacing: 3px;
+      text-shadow: 0 0 15px rgba(0,229,255,0.6);
+    }
+
+    .payment-box {
+      background: rgba(255,209,102,0.06);
+      border: 1px solid rgba(255,209,102,0.2);
+      border-radius: 14px;
+      padding: 1rem 1.2rem;
+      font-size: 0.88rem;
+      color: rgba(255,209,102,0.85);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+
+    .payment-box strong { color: var(--gold); }
+
+    .btn-again {
+      background: transparent;
+      border: 1px solid rgba(0,229,255,0.35);
+      color: var(--cyan);
+      border-radius: 10px;
+      padding: 0.7rem 2rem;
+      font-family: var(--font-b);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-again:hover { background: rgba(0,229,255,0.08); }
+
+    .full-card {
+      display: none;
+      background: rgba(255,82,82,0.06);
+      border: 1px solid rgba(255,82,82,0.3);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      text-align: center;
+      backdrop-filter: blur(20px);
+    }
+
+    .full-card .ficon { font-size: 3.5rem; margin-bottom: 1rem; }
+
+    .full-card h2 {
+      font-family: var(--font-t);
+      font-size: 2.2rem;
+      letter-spacing: 3px;
+      color: var(--coral);
+      margin-bottom: 0.5rem;
+    }
+
+    .full-card p { color: var(--w50); font-size: 0.95rem; line-height: 1.6; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .site-footer {
+      background: rgba(2,11,22,0.9);
+      border-top: 1px solid rgba(255,255,255,0.07);
+      text-align: center;
+      padding: 2rem 1rem;
+      font-size: 0.78rem;
+      color: var(--w50);
+      backdrop-filter: blur(12px);
+    }
+
+    @media (max-width: 480px) {
+      .field-row { grid-template-columns: 1fr; }
+      .form-card  { padding: 1.5rem; }
+      .cd-unit    { padding: 0.7rem 0.9rem; min-width: 62px; }
+      .cd-num     { font-size: 2.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Fixed beach photo background -->
+  <div class="bg-fixed"></div>
+  <div class="bg-tint"></div>
+
+  <!-- ============================================================
+       HERO
+  ============================================================ -->
+  <section class="hero">
+
+    <div class="org-badge">MEEC Centre</div>
+
+    <div class="hero-title">
+      <span class="title-camp">CAMP</span>
+      <span class="title-name">LIMBÉ</span>
+    </div>
+
+    <p class="hero-edition">ÉDITION 2026</p>
+
+    <div class="countdown">
+      <div class="cd-unit"><span class="cd-num" id="cd-d">—</span><span class="cd-lbl">Jours</span></div>
+      <div class="cd-unit"><span class="cd-num" id="cd-h">—</span><span class="cd-lbl">Heures</span></div>
+      <div class="cd-unit"><span class="cd-num" id="cd-m">—</span><span class="cd-lbl">Minutes</span></div>
+      <div class="cd-unit"><span class="cd-num" id="cd-s">—</span><span class="cd-lbl">Secondes</span></div>
+    </div>
+
+    <div class="hero-wave">
+      <svg viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+        <path d="M0,40 C180,100 360,0 540,55 C720,110 900,10 1080,50 C1260,90 1380,20 1440,45 L1440,100 L0,100 Z"
+              fill="rgba(2,11,22,0.0)"/>
+        <path d="M0,65 C240,20 480,100 720,55 C960,10 1200,85 1440,50 L1440,100 L0,100 Z"
+              fill="rgba(2,11,22,0.55)"/>
+        <path d="M0,80 C360,40 720,110 1080,70 C1260,55 1380,80 1440,78 L1440,100 L0,100 Z"
+              fill="rgba(2,11,22,1)"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       INFO STRIP
+  ============================================================ -->
+  <div class="info-strip stagger">
+    <div class="info-pill reveal"><span>📅</span> 7 – 11 Août 2026</div>
+    <div class="info-pill reveal"><span>📍</span> Limbé, Cameroun</div>
+    <div class="info-pill hl reveal"><span>💰</span> 15 000 FCFA</div>
+  </div>
+
+  <!-- ============================================================
+       ACTIVITIES
+  ============================================================ -->
+  <div class="activities-wrap">
+    <p class="section-title reveal">AU PROGRAMME</p>
+    <div class="activities-row stagger">
+      <div class="act-card reveal"><span class="act-icon">🏖️</span><span class="act-name">Plage</span></div>
+      <div class="act-card reveal"><span class="act-icon">⚽</span><span class="act-name">Sport</span></div>
+      <div class="act-card reveal"><span class="act-icon">🙏</span><span class="act-name">Adoration</span></div>
+      <div class="act-card reveal"><span class="act-icon">🤝</span><span class="act-name">Partage</span></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       CAPACITY
+  ============================================================ -->
+  <div class="cap-section">
+    <div class="cap-card reveal">
+      <p class="cap-text" id="places-text">Vérification des places disponibles...</p>
+      <div class="cap-bar"><div class="cap-fill" id="cap-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       FORM
+  ============================================================ -->
+  <div class="form-section">
+
+    <div class="form-header reveal">
+      <h2>S'INSCRIRE</h2>
+      <p>Réserve ta place pour le Camp Limbé 2026</p>
+    </div>
+
+    <!-- Full -->
+    <div class="full-card reveal" id="full-card">
+      <div class="ficon">😔</div>
+      <h2>COMPLET</h2>
+      <p>Toutes les places ont été réservées.<br>Contacte les responsables pour plus d'informations.</p>
+    </div>
+
+    <!-- Form card -->
+    <div class="form-card reveal" id="form-card">
+      <div class="field-row">
+        <div class="field">
+          <label>Nom complet *</label>
+          <input type="text" id="full-name" placeholder="Kevin Tsakem" autocomplete="name">
+        </div>
+        <div class="field">
+          <label>Sexe *</label>
+          <select id="gender">
+            <option value="">Choisir</option>
+            <option value="Homme">Homme</option>
+            <option value="Femme">Femme</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Téléphone *</label>
+        <input type="tel" id="phone" placeholder="699 00 00 00">
+      </div>
+      <div class="field">
+        <label>Église / Groupe *</label>
+        <input type="text" id="church" placeholder="MEEC Centre">
+      </div>
+      <div class="field">
+        <label>Email <span style="color:rgba(255,255,255,0.18);font-weight:600;font-size:0.65rem;">(optionnel)</span></label>
+        <input type="email" id="email" placeholder="exemple@email.com" autocomplete="email">
+      </div>
+      <button class="btn-register" id="submit-btn" onclick="submitForm()">
+        JE RÉSERVE MA PLACE 🌊
+      </button>
+      <div class="form-err" id="form-err"></div>
+    </div>
+
+    <!-- Success -->
+    <div class="success-card" id="success-card">
+      <div class="success-icon">🎉</div>
+      <h2 class="success-title">INSCRIPTION REÇUE !</h2>
+      <p class="success-name" id="success-name"></p>
+      <div class="ticket-box">
+        <p class="ticket-label">Ta référence</p>
+        <p class="ticket-id" id="success-ticket"></p>
+      </div>
+      <div class="payment-box">
+        <strong>Prochaine étape — Paiement :</strong><br>
+        Règle les <strong>15 000 FCFA</strong> auprès des responsables et transmets-leur ta référence. Ta place sera confirmée après validation de ton paiement.
+      </div>
+      <button class="btn-again" onclick="resetForm()">Inscrire une autre personne</button>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    Camp Limbé 2026 · MEEC Centre · 7–11 Août 2026 · Limbé, Cameroun
+  </footer>
+
+  <script>
+    const API_URL = '/api';
+
+    // ============================================================
+    // SCROLL REVEAL — IntersectionObserver
+    // ============================================================
+    const revealObs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in');
+          revealObs.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+    // ============================================================
+    // COUNTDOWN
+    // ============================================================
+    const EVENT = new Date('2026-08-07T08:00:00+01:00');
+
+    function tick() {
+      const diff = EVENT - Date.now();
+      if (diff <= 0) {
+        document.querySelector('.countdown').innerHTML =
+          '<p style="font-family:var(--font-t);font-size:1.8rem;color:var(--cyan);letter-spacing:4px;">LE CAMP A COMMENCÉ !</p>';
+        return;
+      }
+      const pad = n => String(Math.floor(n)).padStart(2,'0');
+      document.getElementById('cd-d').textContent = pad(diff / 86400000);
+      document.getElementById('cd-h').textContent = pad((diff % 86400000) / 3600000);
+      document.getElementById('cd-m').textContent = pad((diff % 3600000) / 60000);
+      document.getElementById('cd-s').textContent = pad((diff % 60000) / 1000);
+    }
+    tick();
+    setInterval(tick, 1000);
+
+    // ============================================================
+    // CAPACITY
+    // ============================================================
+    let maxPlaces = 200;
+
+    async function checkCapacity() {
+      try {
+        const r = await fetch(`${API_URL}?action=getcapacity`);
+        const d = await r.json();
+        if (d.status === 'success') {
+          maxPlaces = d.max_places;
+          const rem = maxPlaces - d.current;
+          const pct = Math.min(100, Math.round(d.current / maxPlaces * 100));
+
+          // Animate bar after a short delay (lets the reveal animation finish first)
+          setTimeout(() => {
+            document.getElementById('cap-fill').style.width = pct + '%';
+          }, 400);
+
+          if (rem <= 0) {
+            document.getElementById('places-text').textContent = 'Complet — toutes les places sont réservées';
+            document.getElementById('form-card').style.display = 'none';
+            document.getElementById('full-card').style.display = 'block';
+          } else {
+            document.getElementById('places-text').textContent =
+              `${rem} place${rem > 1 ? 's' : ''} restante${rem > 1 ? 's' : ''} sur ${maxPlaces}`;
+          }
+        }
+      } catch (e) {
+        document.getElementById('places-text').textContent = 'Places disponibles';
+      }
+    }
+    checkCapacity();
+
+    // ============================================================
+    // TICKET ID
+    // ============================================================
+    function genTicket() {
+      const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let id = 'LMB-';
+      for (let i = 0; i < 6; i++) id += c[Math.floor(Math.random() * c.length)];
+      return id;
+    }
+
+    // ============================================================
+    // SUBMIT
+    // ============================================================
+    async function submitForm() {
+      const name   = document.getElementById('full-name').value.trim();
+      const gender = document.getElementById('gender').value;
+      const phone  = document.getElementById('phone').value.trim();
+      const church = document.getElementById('church').value.trim();
+      const email  = document.getElementById('email').value.trim() || 'N/A';
+      const errEl  = document.getElementById('form-err');
+
+      errEl.style.display = 'none';
+      if (!name || !gender || !phone || !church) {
+        errEl.textContent   = 'Veuillez remplir tous les champs obligatoires.';
+        errEl.style.display = 'block';
+        return;
+      }
+
+      const btn = document.getElementById('submit-btn');
+      btn.disabled    = true;
+      btn.textContent = '⏳ Inscription en cours...';
+
+      const ticketId  = genTicket();
+      const timestamp = new Date().toLocaleString('fr-FR', { timeZone: 'Africa/Douala' });
+      const params    = new URLSearchParams({ action:'register', full_name:name, gender, phone, church, email, ticket_id:ticketId, timestamp });
+
+      try {
+        const res    = await fetch(`${API_URL}?${params}`);
+        const result = await res.json();
+
+        if (result.status === 'success') {
+          document.getElementById('success-name').textContent   = `Bienvenue, ${name} !`;
+          document.getElementById('success-ticket').textContent = ticketId;
+          document.getElementById('form-card').style.display    = 'none';
+          document.getElementById('success-card').style.display = 'block';
+          // Trigger reveal on success card
+          document.getElementById('success-card').classList.add('reveal','in');
+          checkCapacity();
+        } else if (result.status === 'full') {
+          document.getElementById('form-card').style.display = 'none';
+          document.getElementById('full-card').style.display = 'block';
+        } else {
+          errEl.textContent   = result.message || 'Une erreur est survenue, réessayez.';
+          errEl.style.display = 'block';
+          btn.disabled    = false;
+          btn.textContent = 'JE RÉSERVE MA PLACE 🌊';
+        }
+      } catch (err) {
+        errEl.textContent   = 'Erreur de connexion. Vérifiez votre réseau et réessayez.';
+        errEl.style.display = 'block';
+        btn.disabled    = false;
+        btn.textContent = 'JE RÉSERVE MA PLACE 🌊';
+      }
+    }
+
+    function resetForm() {
+      ['full-name','phone','church','email'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('gender').value = '';
+      document.getElementById('form-err').style.display = 'none';
+      document.getElementById('submit-btn').disabled    = false;
+      document.getElementById('submit-btn').textContent = 'JE RÉSERVE MA PLACE 🌊';
+      document.getElementById('success-card').style.display = 'none';
+      document.getElementById('form-card').style.display    = 'block';
+    }
+
+    ['full-name','phone','church','email'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') submitForm(); });
+    });
+  </script>
+
+</body>
+</html>
